@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ModuleType, Severity, Alert } from '../../types';
-import { ShieldAlert, AlertCircle, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, AlertCircle, ChevronRight, CheckCircle2, TriangleAlert } from 'lucide-react';
 
 const mockWarehouseAlerts: Alert[] = [
   { id: 'ERR-W-104', location: 'Aisle 4, Rack B', confidence: 94, action: 'Verify manual pick', severity: Severity.WARNING, timestamp: '12:04:11' },
@@ -22,27 +22,30 @@ const AlertFeed: React.FC<{ activeModule: ModuleType }> = ({ activeModule }) => 
     switch (severity) {
       case Severity.CRITICAL: 
         return { 
-          border: 'border-l-red-600 border-2', 
+          border: 'border-red-600 border-2', 
           text: 'text-white', 
-          bg: 'bg-red-600/20', 
-          icon: AlertCircle,
-          shadow: 'shadow-[0_0_15px_rgba(220,38,38,0.3)]',
+          accent: 'text-red-400',
+          bg: 'bg-red-950/40', 
+          icon: TriangleAlert,
+          shadow: 'shadow-[0_0_25px_rgba(220,38,38,0.4)]',
           pulse: 'animate-pulse'
         };
       case Severity.WARNING: 
         return { 
-          border: 'border-l-amber-500', 
+          border: 'border-amber-500/50', 
           text: 'text-amber-500', 
-          bg: 'bg-amber-500/10', 
+          accent: 'text-amber-300',
+          bg: 'bg-amber-950/20', 
           icon: ShieldAlert,
-          shadow: '',
+          shadow: 'shadow-[0_0_15px_rgba(245,158,11,0.1)]',
           pulse: ''
         };
       default: 
         return { 
-          border: 'border-l-emerald-500', 
+          border: 'border-emerald-500/20', 
           text: 'text-emerald-500', 
-          bg: 'bg-emerald-500/10', 
+          accent: 'text-emerald-400',
+          bg: 'bg-emerald-950/10', 
           icon: CheckCircle2,
           shadow: '',
           pulse: ''
@@ -51,7 +54,7 @@ const AlertFeed: React.FC<{ activeModule: ModuleType }> = ({ activeModule }) => 
   };
 
   return (
-    <div className="space-y-4 pb-8">
+    <div className="space-y-4 pb-12">
       {alerts.map((alert) => {
         const styles = getSeverityStyles(alert.severity);
         const Icon = styles.icon;
@@ -60,40 +63,64 @@ const AlertFeed: React.FC<{ activeModule: ModuleType }> = ({ activeModule }) => 
         return (
           <div 
             key={alert.id} 
-            className={`p-4 rounded-xl transition-all duration-300 group cursor-pointer border ${styles.border} ${styles.shadow} ${isCritical ? 'bg-red-950/20' : 'bg-gray-900/40'} hover:bg-gray-800/80`}
+            className={`relative p-5 rounded-2xl transition-all duration-300 group cursor-pointer border ${styles.border} ${styles.shadow} ${styles.bg} hover:brightness-125`}
           >
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center gap-2">
-                <div className={`${styles.pulse} p-1 rounded-full ${isCritical ? 'bg-red-600' : ''}`}>
-                  <Icon size={isCritical ? 16 : 14} className={isCritical ? 'text-white' : styles.text} />
-                </div>
-                <span className={`font-mono text-xs font-bold tracking-wider ${isCritical ? 'text-white underline' : 'text-gray-200'}`}>
-                  {alert.id}
-                </span>
+            {isCritical && (
+              <div className="absolute top-0 right-0 p-2">
+                <div className="h-2 w-2 rounded-full bg-red-600 animate-ping" />
               </div>
-              <span className="text-[10px] text-gray-500 font-mono">{alert.timestamp}</span>
+            )}
+            
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center gap-3">
+                <div className={`${isCritical ? 'bg-red-600 p-1.5' : 'bg-gray-800 p-1'} rounded-lg`}>
+                  <Icon size={isCritical ? 18 : 16} className={isCritical ? 'text-white' : styles.text} />
+                </div>
+                <div>
+                  <span className={`font-mono text-xs font-black tracking-widest block ${isCritical ? 'text-white underline decoration-red-500' : 'text-gray-300'}`}>
+                    {alert.id}
+                  </span>
+                  <span className="text-[9px] text-gray-500 font-mono">{alert.timestamp}</span>
+                </div>
+              </div>
+              <div className={`px-2 py-0.5 rounded text-[8px] font-black tracking-widest border ${isCritical ? 'bg-red-600 text-white border-red-400' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>
+                {alert.severity}
+              </div>
             </div>
             
-            <div className="space-y-1 mb-4">
-              <div className="flex justify-between items-center text-[11px]">
-                <span className="text-gray-500 uppercase font-bold tracking-tighter">Location</span>
-                <span className={`${isCritical ? 'text-white font-bold' : 'text-gray-300'} font-medium`}>{alert.location}</span>
+            <div className="grid grid-cols-2 gap-4 mb-5">
+              <div className="space-y-0.5">
+                <span className="text-[9px] text-gray-500 uppercase font-black tracking-widest block">Location</span>
+                <span className={`${isCritical ? 'text-white' : 'text-gray-200'} text-xs font-bold`}>{alert.location}</span>
               </div>
-              <div className="flex justify-between items-center text-[11px]">
-                <span className="text-gray-500 uppercase font-bold tracking-tighter">AI Confidence</span>
-                <span className={`${isCritical ? 'text-red-400 font-bold' : 'text-emerald-400'} font-mono`}>{alert.confidence}%</span>
+              <div className="space-y-0.5 text-right">
+                <span className="text-[9px] text-gray-500 uppercase font-black tracking-widest block">AI Confidence</span>
+                <span className={`${isCritical ? 'text-red-400' : 'text-emerald-400'} text-xs font-mono font-black`}>{alert.confidence}%</span>
               </div>
             </div>
 
-            <div className={`p-3 rounded-lg flex items-center justify-between transition-colors border ${isCritical ? 'border-red-500 bg-red-600/30' : 'border-transparent bg-black/20 group-hover:bg-black/40'}`}>
-               <span className={`text-[11px] font-bold uppercase tracking-tight ${isCritical ? 'text-white' : styles.text}`}>
-                 ACTION: {alert.action}
-               </span>
-               <ChevronRight size={14} className={isCritical ? 'text-white' : 'text-gray-600'} />
+            <div className={`p-3 rounded-xl flex items-center justify-between transition-all border ${isCritical ? 'bg-red-600/50 border-red-400 shadow-inner' : 'bg-black/40 border-gray-700 group-hover:border-gray-500'}`}>
+               <div className="flex flex-col">
+                 <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${isCritical ? 'text-red-200' : 'text-gray-500'} mb-1`}>Protocol Recommendation</span>
+                 <span className={`text-[11px] font-black uppercase tracking-tight ${isCritical ? 'text-white' : styles.text}`}>
+                   {alert.action}
+                 </span>
+               </div>
+               <ChevronRight size={18} className={isCritical ? 'text-white animate-bounce-x' : 'text-gray-600'} />
             </div>
           </div>
         );
       })}
+      
+      <style>{`
+        @keyframes bounce-x {
+          0%, 100% { transform: translateX(0); }
+          50% { transform: translateX(4px); }
+        }
+        .animate-bounce-x {
+          animation: bounce-x 1s infinite;
+        }
+      `}</style>
     </div>
   );
 };

@@ -4,8 +4,15 @@ import { Canvas, useFrame, ThreeElements } from '@react-three/fiber';
 import { OrbitControls, Grid, Text, PerspectiveCamera, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Fix: Add type augmentation for React Three Fiber intrinsic elements to resolve JSX namespace errors.
+// Fix: Add comprehensive type augmentation for React Three Fiber intrinsic elements.
+// This ensures that Three.js elements like <group>, <mesh>, etc., are recognized in the JSX namespace,
+// covering both standard global JSX and React 18+ scoped JSX namespaces.
 declare global {
+  namespace React {
+    namespace JSX {
+      interface IntrinsicElements extends ThreeElements {}
+    }
+  }
   namespace JSX {
     interface IntrinsicElements extends ThreeElements {}
   }
@@ -49,7 +56,7 @@ const Box: React.FC<{ position: [number, number, number]; color: string; ghost?:
 
   useFrame((state) => {
     if (ghost && mesh.current) {
-      // @ts-ignore
+      // @ts-ignore - Accessing material properties on potentially polymorphic mesh
       mesh.current.material.opacity = 0.3 + Math.sin(state.clock.getElapsedTime() * 4) * 0.1;
     }
   });
